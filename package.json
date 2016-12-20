@@ -1,0 +1,28 @@
+{
+  "name": "hexalator",
+  "version": "0.1.0",
+  "description": "Hex-Decimal-Binary Converter Utility",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/elliotmr/hexalator"
+  },
+  "keywords": [
+    "utility",
+    "go",
+    "electron",
+    "hex",
+    "binary"
+  ],
+  "author": "Elliot Morrison-Reed <elliotmr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "portfinder": "^1.0.10",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1"
+  }
+}
