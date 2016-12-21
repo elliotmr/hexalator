@@ -7,15 +7,10 @@ const path = require('path');
 const url = require('url');
 const child_process = require('child_process');
 const portfinder = require('portfinder');
-const $ = require('jquery');
-
-// Install Dev Tools ...
 const installExtension = require('electron-devtools-installer').default;
 const {REACT_DEVELOPER_TOOLS, REACT_PERF} = require('electron-devtools-installer');
-// To Here ...
 
 let window;
-let host;
 
 function createWindow() {
     window = new BrowserWindow({
@@ -36,16 +31,6 @@ function createWindow() {
     });
 }
 
-function convert(type, field, endian, num_bytes, value) {
-    $.post(
-        host,
-        {type, field, endian, num_bytes, value},
-        function(data) {
-            console.log(data);
-        }
-    );
-}
-
 app.on('ready', function() {
     installExtension(REACT_DEVELOPER_TOOLS)
         .then((name) => console.log(`Added Extension:  ${name}`))
@@ -58,8 +43,8 @@ app.on('ready', function() {
             });
             app.quit();
         }
-        host = "localhost:" + port;
-        child_process.spawn('./hl/hl', ['server', '--host', host]);
+        global.host = "localhost:" + port;
+        child_process.spawn('./hl/hl', ['server', '--host', global.host]);
     });
     createWindow();
 });

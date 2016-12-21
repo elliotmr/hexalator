@@ -20,6 +20,7 @@
   "author": "Elliot Morrison-Reed <elliotmr@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "electron": "^1.4.13",
     "jquery": "^3.1.1",
     "portfinder": "^1.0.10",
     "react": "^15.4.1",
@@ -39,6 +40,7 @@
     "postcss-loader": "^1.2.1",
     "react-dev-utils": "^0.4.2",
     "style-loader": "^0.13.1",
-    "webpack": "^1.14.0"
+    "webpack": "^1.14.0",
+    "webpack-target-electron-renderer": "^0.4.0"
   }
 }

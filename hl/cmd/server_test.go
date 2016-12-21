@@ -16,14 +16,7 @@ func TestHandleConvert(t *testing.T) {
 	s := httptest.NewServer(mux)
 
 	buf := &bytes.Buffer{}
-	enc := json.NewEncoder(buf)
-	enc.Encode(&cnv.ConversionRequest{
-		Type: "INTEGER",
-		Field: "SignedDecimal",
-		Endian: "Big",
-		NumBytes: 2,
-		Value: "4909",
-	})
+	buf.WriteString(`{"type":"integer","field":"unsigned_decimal","endian":"little","num_bytes":1,"value":"0"}`)
 
 	c := &http.Client{}
 	rsp, err := c.Post(s.URL, "application/json", buf)

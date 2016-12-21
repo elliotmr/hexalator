@@ -56,12 +56,17 @@ type Conversion interface {
 }
 
 type IntegerConversion struct {
-	raw             []byte
 	UnsignedDecimal string `json:"unsigned_decimal"`
 	SignedDecimal   string `json:"signed_decimal"`
 	Binary          string `json:"binary"`
 	Hexadecimal     string `json:"hex"`
 	UTF8            string `json:"string"`
+	raw             []byte
+	udSrc           bool
+	sdSrc           bool
+	bSrc            bool
+	hSrc            bool
+	utfSrc          bool
 }
 
 func fillRaw(b []byte, bo binary.ByteOrder, numBytes uint, value uint64) error {
@@ -88,6 +93,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 
 	switch strings.ToLower(field) {
 	case "unsigned_decimal", "unsigneddecimal":
+		ic.udSrc = true
+		ic.UnsignedDecimal = value
 		rawU, err = strconv.ParseUint(value, 10, int(numBytes) * 8)
 		if err != nil {
 			return errors.Wrap(err, "invalid unsigned decimal")
@@ -97,6 +104,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 			return errors.Wrap(err, "invalid unsigned decimal")
 		}
 	case "signed_decimal", "signeddecimal":
+		ic.sdSrc = true
+		ic.SignedDecimal = value
 		rawS, err = strconv.ParseInt(value, 10, int(numBytes) * 8)
 		if err != nil {
 			return errors.Wrap(err, "invalid signed decimal")
@@ -112,6 +121,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 			return errors.Wrap(err, "invalid signed decimal")
 		}
 	case "binary":
+		ic.bSrc = true
+		ic.Binary = value
 		rawU, err = strconv.ParseUint(value, 2, int(numBytes) * 8)
 		if err != nil {
 			return errors.Wrap(err, "invalid binary")
@@ -121,6 +132,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 			return errors.Wrap(err, "invalid binary")
 		}
 	case "hex":
+		ic.hSrc = true
+		ic.Hexadecimal = value
 		rawU, err = strconv.ParseUint(value, 16, int(numBytes) * 8)
 		if err != nil {
 			return errors.Wrap(err, "invalid hexadecimal")
@@ -129,7 +142,9 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 		if err != nil {
 			return errors.Wrap(err, "invalid hexadecimal")
 		}
-	case "utf8", "string":
+	case "utf8", "string", "utf-8":
+		ic.utfSrc = true
+		ic.UTF8 = value
 		ic.raw = []byte(value)
 		if len(ic.raw) > int(numBytes) {
 			return errors.Errorf("string too long %d > %d", len(ic.raw), numBytes)
@@ -138,17 +153,29 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 		return errors.Errorf("invalid field type: %s", field)
 	}
 
-
-	ic.UnsignedDecimal = fmt.Sprintf("%d", rawU)
-	ic.SignedDecimal = fmt.Sprintf("%d", rawS)
-	binaryBuf := &bytes.Buffer{}
-	hexBuf := &bytes.Buffer{}
-	for _, b := range ic.raw {
-		binaryBuf.WriteString(fmt.Sprintf("%08b ", b))
-		hexBuf.WriteString(fmt.Sprintf("%02X ", b))
+	if !ic.udSrc {
+		ic.UnsignedDecimal = fmt.Sprintf("%d", rawU)
 	}
-	ic.Binary = strings.TrimSpace(binaryBuf.String())
-	ic.Hexadecimal = strings.TrimSpace(hexBuf.String())
-	ic.UTF8 = string(ic.raw)
+	if !ic.sdSrc {
+		// TODO: Calculate raw signed value
+		ic.SignedDecimal = fmt.Sprintf("%d", rawS)
+	}
+	if !ic.bSrc {
+		binaryBuf := &bytes.Buffer{}
+		for _, b := range ic.raw {
+			binaryBuf.WriteString(fmt.Sprintf("%08b ", b))
+		}
+		ic.Binary = strings.TrimSpace(binaryBuf.String())
+	}
+	if !ic.hSrc {
+		hexBuf := &bytes.Buffer{}
+		for _, b := range ic.raw {
+			hexBuf.WriteString(fmt.Sprintf("%02X ", b))
+		}
+		ic.Hexadecimal = strings.TrimSpace(hexBuf.String())
+	}
+	if !ic.utfSrc {
+		ic.UTF8 = string(ic.raw)
+	}
 	return nil
 }

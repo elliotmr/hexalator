@@ -1,8 +1,10 @@
 var webpack = require('webpack');
 var path = require('path');
+var webpackTargetElectronRenderer = require('webpack-target-electron-renderer');
 
 // TODO: Add source maps
-module.exports = {
+var options = {
+    devtool: 'cheap-module-source-map',
     entry: path.resolve(__dirname, 'app/index.jsx'),
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -22,3 +24,6 @@ module.exports = {
         ]
     }
 }
+
+options.target = webpackTargetElectronRenderer(options);
+module.exports = options;
