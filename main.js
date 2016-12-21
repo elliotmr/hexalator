@@ -1,16 +1,21 @@
 const {
     app,
-    BrowserWindow
+    BrowserWindow,
+    dialog
 } = require('electron');
-const dialog = require('dialog');
 const path = require('path');
 const url = require('url');
 const child_process = require('child_process');
 const portfinder = require('portfinder');
 const $ = require('jquery');
 
+// Install Dev Tools ...
+const installExtension = require('electron-devtools-installer').default;
+const {REACT_DEVELOPER_TOOLS, REACT_PERF} = require('electron-devtools-installer');
+// To Here ...
+
 let window;
-let backend_port;
+let host;
 
 function createWindow() {
     window = new BrowserWindow({
@@ -31,11 +36,20 @@ function createWindow() {
     });
 }
 
-function callConvert() {
-    
+function convert(type, field, endian, num_bytes, value) {
+    $.post(
+        host,
+        {type, field, endian, num_bytes, value},
+        function(data) {
+            console.log(data);
+        }
+    );
 }
 
 app.on('ready', function() {
+    installExtension(REACT_DEVELOPER_TOOLS)
+        .then((name) => console.log(`Added Extension:  ${name}`))
+        .catch((err) => console.log('An error occurred: ', err));
     portfinder.getPort(function(err, port) {
         if (err) {
             dialog.showMessageBox({
@@ -44,8 +58,8 @@ app.on('ready', function() {
             });
             app.quit();
         }
-        backend_port = port;
-        child_process.spawn("./hl/hl server --host localhost:" + port);
+        host = "localhost:" + port;
+        child_process.spawn('./hl/hl', ['server', '--host', host]);
     });
     createWindow();
 });
