@@ -44,9 +44,14 @@ func Convert(req ConversionRequest) ConversionResult {
 	switch strings.ToLower(req.Type) {
 	case "integer":
 		r := &IntegerConversion{}
-		r.Fill(req.Field, bo, req.NumBytes, req.Value)
-		result.Success = true
-		result.Result = r
+		err := r.Fill(req.Field, bo, req.NumBytes, req.Value)
+		if err != nil {
+			result.Success = false
+			result.Result = err.Error()
+		} else {
+			result.Success = true
+			result.Result = r
+		}
 	default:
 		return ConversionResult{false, req.NumBytes, req.Endian, "invalid conversion type"}
 	}
@@ -93,6 +98,7 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 	var rawS int64
 	var err error
 	ic.raw = make([]byte, numBytes)
+	mask := (uint64(1) << (numBytes * 8)) - 1
 
 	switch strings.ToLower(field) {
 	case "unsigned_decimal", "unsigneddecimal":
@@ -116,7 +122,6 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 		if rawS >= 0 {
 			rawU = uint64(rawS)
 		} else {
-			mask := (uint64(1) << (numBytes * 8)) - 1
 			rawU = (mask & uint64(rawS))
 		}
 		err = fillRaw(ic.raw, bo, numBytes, rawU)
@@ -162,7 +167,11 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 		ic.UnsignedDecimal = fmt.Sprintf("%d", rawU)
 	}
 	if !ic.sdSrc {
-		// TODO: Calculate raw signed value
+		if rawU & (1 << (numBytes * 8 - 1)) > 0 {
+			rawS = int64(rawU & (mask >> 1)) * -1 + 1
+		} else {
+			rawS = int64(rawU)
+		}
 		ic.SignedDecimal = fmt.Sprintf("%d", rawS)
 	}
 	if !ic.bSrc {
