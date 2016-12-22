@@ -27,6 +27,8 @@ function update(type, field, endian, num_bytes, value) {
         success: function (resp) {
             if (resp.success) {
                 state.data = resp.result;
+                state.num_bytes = resp.num_bytes;
+                state.endian = resp.endian;
             }
             ReactDOM.render(
                 <App state={state} update={update}/>, document.getElementById('root'));

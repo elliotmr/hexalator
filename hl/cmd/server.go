@@ -50,6 +50,7 @@ If the request is valid it will return a response will all forms of the input va
 {
 	"success": true || false,
 	"num_bytes": <num_bytes>,
+	"endian": <endian>,
 	"result": {
 		"unsigned_decimal": <...>,
 		"signed_decimal": <...>,

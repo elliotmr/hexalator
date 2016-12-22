@@ -21,6 +21,7 @@ type ConversionRequest struct {
 type ConversionResult struct {
 	Success  bool        `json:"success"`
 	NumBytes uint        `json:"num_bytes"`
+	Endian   string      `json:"endian"`
 	Result   interface{} `json:"result"`
 }
 
@@ -32,20 +33,22 @@ func Convert(req ConversionRequest) ConversionResult {
 	case "little", "intel":
 		bo = binary.LittleEndian
 	default:
-		return ConversionResult{false, req.NumBytes, "invalid endian"}
+		return ConversionResult{false, req.NumBytes, req.Endian, "invalid endian"}
 	}
 
-	result := ConversionResult{}
+	result := ConversionResult{
+		NumBytes: req.NumBytes,
+		Endian:   req.Endian,
+	}
 
 	switch strings.ToLower(req.Type) {
 	case "integer":
 		r := &IntegerConversion{}
 		r.Fill(req.Field, bo, req.NumBytes, req.Value)
 		result.Success = true
-		result.NumBytes = req.NumBytes
 		result.Result = r
 	default:
-		return ConversionResult{false, req.NumBytes, "invalid conversion type"}
+		return ConversionResult{false, req.NumBytes, req.Endian, "invalid conversion type"}
 	}
 
 	return result
@@ -95,7 +98,7 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 	case "unsigned_decimal", "unsigneddecimal":
 		ic.udSrc = true
 		ic.UnsignedDecimal = value
-		rawU, err = strconv.ParseUint(value, 10, int(numBytes) * 8)
+		rawU, err = strconv.ParseUint(value, 10, int(numBytes)*8)
 		if err != nil {
 			return errors.Wrap(err, "invalid unsigned decimal")
 		}
@@ -106,7 +109,7 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 	case "signed_decimal", "signeddecimal":
 		ic.sdSrc = true
 		ic.SignedDecimal = value
-		rawS, err = strconv.ParseInt(value, 10, int(numBytes) * 8)
+		rawS, err = strconv.ParseInt(value, 10, int(numBytes)*8)
 		if err != nil {
 			return errors.Wrap(err, "invalid signed decimal")
 		}
@@ -123,7 +126,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 	case "binary":
 		ic.bSrc = true
 		ic.Binary = value
-		rawU, err = strconv.ParseUint(value, 2, int(numBytes) * 8)
+		value = strings.Replace(value, " ", "", -1)
+		rawU, err = strconv.ParseUint(value, 2, int(numBytes)*8)
 		if err != nil {
 			return errors.Wrap(err, "invalid binary")
 		}
@@ -134,7 +138,8 @@ func (ic *IntegerConversion) Fill(field string, bo binary.ByteOrder, numBytes ui
 	case "hex":
 		ic.hSrc = true
 		ic.Hexadecimal = value
-		rawU, err = strconv.ParseUint(value, 16, int(numBytes) * 8)
+		value = strings.Replace(value, " ", "", -1)
+		rawU, err = strconv.ParseUint(value, 16, int(numBytes)*8)
 		if err != nil {
 			return errors.Wrap(err, "invalid hexadecimal")
 		}

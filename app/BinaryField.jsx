@@ -31,12 +31,7 @@ class BinaryField extends Component {
 
     render() {
         const {inputValue} = this.state;
-        return (<input
-            type="text"
-            value={inputValue}
-            onChange={this.handleChange}
-            pattern="[0-1]"
-            maxLength="8"/>)
+        return (<input type="text" value={inputValue} onChange={this.handleChange}/>)
     }
 }
 
