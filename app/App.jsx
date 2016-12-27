@@ -6,6 +6,7 @@ import StringField from './StringField.jsx';
 import UnsignedField from './UnsignedField.jsx';
 import BytesSelect from './BytesSelect.jsx';
 import EndianSelect from './EndianSelect.jsx';
+import './App.css';
 
 class App extends Component {
     constructor(props) {
@@ -44,7 +45,7 @@ class App extends Component {
     render() {
         const {state} = this.props;
         return (
-            <div>
+            <div className="App-base">
                 <BinaryField update={this.fieldUpdate} value={state.data.binary}/>
                 <HexField update={this.fieldUpdate} value={state.data.hex}/>
                 <SignedField update={this.fieldUpdate} value={state.data.signed_decimal}/>

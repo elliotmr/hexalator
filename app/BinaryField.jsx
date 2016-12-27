@@ -36,7 +36,7 @@ class BinaryField extends Component {
         const {update} = this.props;
         let binVal = this.state.binValue;
         let ds = event.target.dataset;
-        binVal[ds.bytenum][ds.bitnum] = event.target.value;
+        binVal[ds.bytenum][ds.bitnum] = !binVal[ds.bytenum][ds.bitnum];
         this.setState({binValue: binVal});
         const binString = binVal.map((byteVal, byteIndex) => {
             return byteVal.map((bitVal, bitIndex) => {
@@ -51,6 +51,7 @@ class BinaryField extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
+        // TODO: Handle length change correctly.
         const nextPropsValue = stringToBin(nextProps.value);
         const thisPropsValue = stringToBin(this.props.value);
         if (!_.isEqual(nextPropsValue, thisPropsValue) && !_.isEqual(nextPropsValue, this.state.binValue)) {

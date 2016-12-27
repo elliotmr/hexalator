@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import _ from 'lodash';
+import './HexField.css';
 
 class HexField extends Component {
     constructor(props) {
@@ -40,6 +41,7 @@ class HexField extends Component {
         const {splitValue} = this.state;
         const fields = splitValue.map((value, index) => {
             return <input
+                className="HexField-byte-field"
                 type="text"
                 value={value}
                 onChange={this.handleChange}
