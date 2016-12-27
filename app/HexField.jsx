@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react';
+import _ from 'lodash';
 
 class HexField extends Component {
     constructor(props) {
@@ -9,7 +10,7 @@ class HexField extends Component {
     }
 
     state = {
-        inputValue: ""
+        splitValue: ["00"]
     }
 
     static propTypes = {
@@ -19,19 +20,36 @@ class HexField extends Component {
 
     handleChange(event) {
         const {update} = this.props;
+        let stateVals = this.state.splitValue;
+        stateVals[event.target.dataset.bytenum] = event.target.value;
+        this.setState({splitValue: stateVals});
         update("hex", event.target.value);
-        this.setState({inputValue: event.target.value});
     }
 
     componentWillUpdate(nextProps, nextState) {
-        if ((nextProps.value !== this.props.value) && (nextProps.value !== this.state.inputValue)) {
-            this.setState({inputValue: nextProps.value});
+        const split = nextProps
+            .value
+            .split(" ");
+        if (!_.isEqual(split, this.props.value.split(" ")) && !_.isEqual(split, this.state.splitValue)) {
+
+            this.setState({splitValue: split});
         }
     }
 
     render() {
-        const {inputValue} = this.state;
-        return (<input type="text" value={inputValue} onChange={this.handleChange}/>)
+        const {splitValue} = this.state;
+        const fields = splitValue.map((value, index) => {
+            return <input
+                type="text"
+                value={value}
+                onChange={this.handleChange}
+                maxLength="2"
+                data-bytenum={index}
+                key={index}/>
+        });
+        return (
+            <div>Hex: {fields}</div>
+        )
     }
 }
 

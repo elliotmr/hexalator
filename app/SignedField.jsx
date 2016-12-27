@@ -31,7 +31,12 @@ class SignedField extends Component {
 
     render() {
         const {inputValue} = this.state;
-        return (<input type="text" value={inputValue} onChange={this.handleChange}/>)
+        return (
+            <div>
+                Signed:
+                <input type="text" value={inputValue} onChange={this.handleChange}/>
+            </div>
+        )
     }
 }
 

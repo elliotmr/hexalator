@@ -45,7 +45,6 @@ class App extends Component {
         const {state} = this.props;
         return (
             <div>
-                <h1>Hello World!</h1>
                 <BinaryField update={this.fieldUpdate} value={state.data.binary}/>
                 <HexField update={this.fieldUpdate} value={state.data.hex}/>
                 <SignedField update={this.fieldUpdate} value={state.data.signed_decimal}/>

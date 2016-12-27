@@ -31,7 +31,12 @@ class UnsignedField extends Component {
 
     render() {
         const {inputValue} = this.state;
-        return (<input type="text" value={inputValue} onChange={this.handleChange}/>)
+        return (
+            <div>
+                Unsigned:
+                <input type="text" value={inputValue} onChange={this.handleChange}/>
+            </div>
+        )
     }
 }
 
