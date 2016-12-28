@@ -2,11 +2,23 @@ import React, {Component, PropTypes} from 'react';
 import _ from 'lodash';
 import './HexField.css';
 
+function stringToHex(str) {
+    const digits = str.replace(/ /g, '');
+    let next = new Array();
+    for (let i = 0; i < digits.length; i += 2) {
+        next.push(digits.slice(i, i+2));
+    }
+    return next;
+}
+
 class HexField extends Component {
     constructor(props) {
         super(props);
         this.handleChange = this
             .handleChange
+            .bind(this);
+        this.handleFocus = this
+            .handleFocus
             .bind(this);
     }
 
@@ -24,16 +36,30 @@ class HexField extends Component {
         let stateVals = this.state.splitValue;
         stateVals[event.target.dataset.bytenum] = event.target.value;
         this.setState({splitValue: stateVals});
-        update("hex", event.target.value);
+        const hexString = stateVals.map((byteVal, byteIndex) => {
+            switch(byteVal.length) {
+                case 0:
+                    return "00";
+                case 1:
+                    return "0" + byteVal;
+                case 2:
+                    return byteVal;
+                default:
+                    return byteVal.substr(byteVal.length - 2, byteVal.length);
+            }
+        }).join(" ");
+        update("hex", hexString);
+    }
+
+    handleFocus(event) {
+        event.target.setSelectionRange(0, event.target.value.length);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        const split = nextProps
-            .value
-            .split(" ");
-        if (!_.isEqual(split, this.props.value.split(" ")) && !_.isEqual(split, this.state.splitValue)) {
-
-            this.setState({splitValue: split});
+        const nextPropsValue = stringToHex(nextProps.value);
+        const thisPropsValue = stringToHex(this.props.value);
+        if (!_.isEqual(nextPropsValue, thisPropsValue) && !_.isEqual(nextPropsValue, this.state.splitValue)) {
+            this.setState({splitValue: nextPropsValue});
         }
     }
 
@@ -45,6 +71,7 @@ class HexField extends Component {
                 type="text"
                 value={value}
                 onChange={this.handleChange}
+                onFocus={this.handleFocus}
                 maxLength="2"
                 data-bytenum={index}
                 key={index}/>
